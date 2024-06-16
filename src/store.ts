@@ -29,9 +29,9 @@ type GlobalState = {
   users: UsersStore;
 };
 
-// опписание стора пользователя, его типов
+// описание стора пользователя, его типов
 
-type User = {
+export type User = {
   name: string;
   id: string;
 };
@@ -166,3 +166,21 @@ export const useAppSelector = useSelector.withTypes<RootState>();
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 export const useAppStore = useStore.withTypes<typeof store>();
 export const createAppSelector = createSelector.withTypes<RootState>();
+
+// реселект для избежания пересоздания лишних ссылок (или при использовании алгоритмов высокой сложности)
+// лучше хранить рядом со стором для инкапсуляции логики его использования (архитектура)
+// реселект кеширует вычисления
+export const usersSelector = createAppSelector(
+  (store: RootState) => store.users.ids,
+  (store: RootState) => store.users.usersData,
+  (_: RootState, sort: "asc" | "desc") => sort,
+  (ids, users, sort) =>
+    (ids.map((id) => users[id]) as User[]).sort((userA, userB) => {
+      switch (sort) {
+        case "asc":
+          return userA?.name.localeCompare(userB.name);
+        case "desc":
+          return userB?.name.localeCompare(userA.name);
+      }
+    })
+);

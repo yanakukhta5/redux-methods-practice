@@ -8,7 +8,7 @@ import {
   useAppSelector,
   selectorCounter,
   GetUsersAction,
-  User,
+  usersSelector
 } from "./store";
 
 const Counter = ({ counterId }: { counterId: number }) => {
@@ -69,22 +69,12 @@ const Counter = ({ counterId }: { counterId: number }) => {
 };
 
 const UsersList = () => {
-  const ids = useAppSelector((store) => store.users.ids);
-  const users = useAppSelector((store) => store.users.usersData);
   const [sort, setSort] = useState<"asc" | "desc">("asc");
 
-  console.log(`users`);
+  // селекторы вызываются после каждого экшона
+  const sortedUsers = useAppSelector((state) => usersSelector(state, sort));
 
-  const sortedUsers = (ids.map((id) => users[id]) as User[]).sort(
-    (userA, userB) => {
-      switch (sort) {
-        case "asc":
-          return userA?.name.localeCompare(userB.name);
-        case "desc":
-          return userB?.name.localeCompare(userA.name);
-      }
-    }
-  );
+  console.log(`users`);
 
   return (
     <>
