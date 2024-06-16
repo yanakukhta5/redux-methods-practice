@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, createSelector } from "@reduxjs/toolkit";
 
 import { useSelector, useDispatch, useStore } from "react-redux";
 
@@ -24,9 +24,45 @@ type Action = IncrementAction | DecrementAction;
 
 export type CounterId = number;
 
-type CountersState = {
+type GlobalState = {
   counters: Record<CounterId, State | undefined>;
+  users: UsersStore;
 };
+
+// опписание стора пользователя, его типов
+
+type User = {
+  name: string;
+  id: string;
+};
+
+type UserId = string;
+
+type UsersStore = {
+  usersData: Record<UserId, User | undefined>;
+  ids: UserId[];
+  selectedUserId: UserId | undefined;
+};
+
+export type GetUsersAction = {
+  type: "getUsersAction";
+  payload: {
+    users: User[];
+  };
+};
+
+export type SetSelectedUserIdAction = {
+  type: "setSelectedUserId";
+  payload: {
+    id: UserId;
+  };
+};
+
+export type ResetSelectedUserIdAction = {
+  type: "resetSelectedUserId";
+};
+
+type UserAction = GetUsersAction | SetSelectedUserIdAction | ResetSelectedUserIdAction;
 
 // дефолтное состояние каунтера (при первом редюсера вызове его нет)
 const initialCounterState: State = {
@@ -35,37 +71,82 @@ const initialCounterState: State = {
 
 // описали состояние и экшон и можно создать редюсер
 const reducer = (
-  state: CountersState = {
+  state: GlobalState = {
     counters: {},
+    users: {
+      selectedUserId: undefined,
+      ids: [],
+      usersData: {},
+    },
   },
-  action: Action
-): CountersState => {
+  action: Action | UserAction
+): GlobalState => {
   // иммутабельное обновление
   switch (action.type) {
     case "increment": {
-      const id = action.payload.counterId;
-      const counterObject = state.counters[id] ?? initialCounterState;
+      const { counterId } = action.payload;
+      const counterObject = state.counters[counterId] ?? initialCounterState;
 
       return {
         ...state,
         counters: {
           ...state.counters,
-          [id]: { ...counterObject, counter: counterObject.counter + 1 },
+          [counterId]: { ...counterObject, counter: counterObject.counter + 1 },
         },
       };
     }
     case "decrement": {
-      const id = action.payload.counterId;
-      const counterObject = state.counters[id] ?? initialCounterState;
+      const { counterId } = action.payload;
+      const counterObject = state.counters[counterId] ?? initialCounterState;
 
       return {
         ...state,
         counters: {
           ...state.counters,
-          [id]: { ...counterObject, counter: counterObject.counter - 1 },
+          [counterId]: { ...counterObject, counter: counterObject.counter - 1 },
         },
       };
     }
+
+    // описание экшенов для юзеров
+
+    case "getUsersAction": {
+      const { users } = action.payload;
+
+      return {
+        ...state,
+        users: {
+          ...state.users,
+          usersData: users.reduce((acc, user) => {
+            acc[user.id] = user;
+            return acc;
+          }, {} as Record<UserId, User>),
+          ids: users.map((user) => user.id),
+        },
+      };
+    }
+
+    case "setSelectedUserId": {
+      const { id } = action.payload;
+      return {
+        ...state,
+        users: {
+          ...state.users,
+          selectedUserId: id,
+        },
+      };
+    }
+
+    case "resetSelectedUserId": {
+      return {
+        ...state,
+        users: {
+          ...state.users,
+          selectedUserId: undefined,
+        },
+      };
+    }
+
     default:
       return state;
   }
@@ -84,3 +165,4 @@ export type AppDispatch = typeof store.dispatch;
 export const useAppSelector = useSelector.withTypes<RootState>();
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 export const useAppStore = useStore.withTypes<typeof store>();
+export const createAppSelector = createSelector.withTypes<RootState>();
