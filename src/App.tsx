@@ -1,16 +1,39 @@
-import { useReducer, useEffect } from "react";
+import { useReducer, useEffect, useRef } from "react";
 import "./App.css";
-import { DecrementAction, IncrementAction, store } from "./store";
+import {
+  DecrementAction,
+  IncrementAction,
+  store,
+  StoreType,
+  CounterId,
+} from "./store";
 
 const Counter = ({ counterId }: { counterId: number }) => {
   const [, forseUpdate] = useReducer((x) => x + 1, 0);
 
+  const selectorCounter = (store: StoreType, counterId: CounterId) =>
+    store.counters[counterId];
+
+  const lastState = useRef<ReturnType<typeof selectorCounter>>(
+    selectorCounter(store.getState(), counterId)
+  );
+
+  console.log(counterId)
+
   useEffect(() => {
     // переданная функция вызывается после обновления состояния
-    const unsubscribe = store.subscribe(() => forseUpdate());
+    const unsubscribe = store.subscribe(() => {
+      const currentState = selectorCounter(store.getState(), counterId);
+
+      if (lastState.current !== currentState) {
+        forseUpdate();
+      }
+
+      lastState.current = currentState;
+    })
     return unsubscribe;
-  }, []);
-  
+  }, [counterId]);
+
   return (
     <div className="card">
       <button

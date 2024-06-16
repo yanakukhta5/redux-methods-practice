@@ -20,7 +20,7 @@ export type DecrementAction = {
 
 type Action = IncrementAction | DecrementAction;
 
-type CounterId = number;
+export type CounterId = number;
 
 type CountersState = {
   counters: Record<CounterId, State | undefined>;
@@ -72,3 +72,5 @@ const reducer = (
 export const store = configureStore({
   reducer: reducer,
 });
+
+export type StoreType = ReturnType<typeof store.getState>
