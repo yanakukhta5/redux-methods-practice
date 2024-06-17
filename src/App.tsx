@@ -8,7 +8,7 @@ import {
   useAppSelector,
   selectorCounter,
   GetUsersAction,
-  usersSelector
+  usersSelector,
 } from "./store";
 
 const Counter = ({ counterId }: { counterId: number }) => {
@@ -109,7 +109,7 @@ function App() {
         ],
       },
     } as GetUsersAction);
-  }, [dispatch]);
+  }, []);
 
   return (
     <>

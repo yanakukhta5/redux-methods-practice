@@ -1,36 +1,15 @@
-import { configureStore, createSelector } from "@reduxjs/toolkit";
+import { combineReducers, configureStore, createSelector } from "@reduxjs/toolkit";
 
 import { useSelector, useDispatch, useStore } from "react-redux";
 
-type State = {
-  counter: number;
-};
+// type GlobalState = {
+//   counters: CountersState;
+//   users: UsersStore;
+// };
 
-export type IncrementAction = {
-  type: "increment";
-  payload: {
-    counterId: number;
-  };
-};
-
-export type DecrementAction = {
-  type: "decrement";
-  payload: {
-    counterId: number;
-  };
-};
-
-type Action = IncrementAction | DecrementAction;
-
-export type CounterId = number;
-
-type GlobalState = {
-  counters: Record<CounterId, State | undefined>;
-  users: UsersStore;
-};
+type Action = UserAction | CountersAction;
 
 // описание стора пользователя, его типов
-
 export type User = {
   name: string;
   id: string;
@@ -62,52 +41,24 @@ export type ResetSelectedUserIdAction = {
   type: "resetSelectedUserId";
 };
 
-type UserAction = GetUsersAction | SetSelectedUserIdAction | ResetSelectedUserIdAction;
+type UserAction =
+  | GetUsersAction
+  | SetSelectedUserIdAction
+  | ResetSelectedUserIdAction;
 
-// дефолтное состояние каунтера (при первом редюсера вызове его нет)
-const initialCounterState: State = {
-  counter: 0,
+const initialUsersState = {
+  selectedUserId: undefined,
+  ids: [],
+  usersData: {},
 };
 
 // описали состояние и экшон и можно создать редюсер
-const reducer = (
-  state: GlobalState = {
-    counters: {},
-    users: {
-      selectedUserId: undefined,
-      ids: [],
-      usersData: {},
-    },
-  },
-  action: Action | UserAction
-): GlobalState => {
+const usersReducer = (
+  state: UsersStore = initialUsersState,
+  action: Action
+): UsersStore => {
   // иммутабельное обновление
   switch (action.type) {
-    case "increment": {
-      const { counterId } = action.payload;
-      const counterObject = state.counters[counterId] ?? initialCounterState;
-
-      return {
-        ...state,
-        counters: {
-          ...state.counters,
-          [counterId]: { ...counterObject, counter: counterObject.counter + 1 },
-        },
-      };
-    }
-    case "decrement": {
-      const { counterId } = action.payload;
-      const counterObject = state.counters[counterId] ?? initialCounterState;
-
-      return {
-        ...state,
-        counters: {
-          ...state.counters,
-          [counterId]: { ...counterObject, counter: counterObject.counter - 1 },
-        },
-      };
-    }
-
     // описание экшенов для юзеров
 
     case "getUsersAction": {
@@ -115,14 +66,11 @@ const reducer = (
 
       return {
         ...state,
-        users: {
-          ...state.users,
-          usersData: users.reduce((acc, user) => {
-            acc[user.id] = user;
-            return acc;
-          }, {} as Record<UserId, User>),
-          ids: users.map((user) => user.id),
-        },
+        usersData: users.reduce((acc, user) => {
+          acc[user.id] = user;
+          return acc;
+        }, {} as Record<UserId, User>),
+        ids: users.map((user) => user.id),
       };
     }
 
@@ -130,20 +78,14 @@ const reducer = (
       const { id } = action.payload;
       return {
         ...state,
-        users: {
-          ...state.users,
-          selectedUserId: id,
-        },
+        selectedUserId: id,
       };
     }
 
     case "resetSelectedUserId": {
       return {
         ...state,
-        users: {
-          ...state.users,
-          selectedUserId: undefined,
-        },
+        selectedUserId: undefined,
       };
     }
 
@@ -151,6 +93,92 @@ const reducer = (
       return state;
   }
 };
+
+export type IncrementAction = {
+  type: "increment";
+  payload: {
+    counterId: number;
+  };
+};
+
+export type DecrementAction = {
+  type: "decrement";
+  payload: {
+    counterId: number;
+  };
+};
+
+type CountersAction = IncrementAction | DecrementAction;
+
+export type CounterId = number;
+
+type CounterState = {
+  counter: number;
+};
+
+type CountersState = Record<CounterId, CounterState | undefined>;
+
+// дефолтное состояние каунтера (при первом редюсера вызове его нет)
+const initialCounterState: CounterState = {
+  counter: 0,
+};
+
+const initialCountersState = {};
+
+const countersReducer = (
+  state: CountersState = initialCountersState,
+  action: Action
+): CountersState => {
+  switch (action.type) {
+    case "increment": {
+      const { counterId } = action.payload;
+      const counterObject = state[counterId] ?? initialCounterState;
+
+      return {
+        ...state,
+        [counterId]: { ...counterObject, counter: counterObject.counter + 1 },
+      };
+    }
+    case "decrement": {
+      const { counterId } = action.payload;
+      const counterObject = state[counterId] ?? initialCounterState;
+
+      return {
+        ...state,
+        [counterId]: { ...counterObject, counter: counterObject.counter - 1 },
+      };
+    }
+
+    default:
+      return state;
+  }
+};
+
+
+
+
+// const initialState = {
+//   users: initialUsersState,
+//   counters: initialCountersState,
+// }
+
+// const reducer = (
+//   state: GlobalState = initialState,
+//   action: Action
+// ): GlobalState => {
+//   return {
+//     users: usersReducer(state.users, action),
+//     counters: countersReducer(state.counters, action),
+//   };
+// };
+
+
+// логически разделили редюсеры и скомбинировали их в один
+// на каждый экшон вызывается редюсер, и уже редюсер решает что делать с изменениями
+const reducer = combineReducers({
+  users: usersReducer,
+  counters: countersReducer
+})
 
 export const store = configureStore({
   reducer: reducer,
