@@ -2,7 +2,11 @@ import { useState } from "react";
 
 import "./App.css";
 
-import { DecrementAction, IncrementAction, selectorCounter } from "./counters.slice";
+import {
+  decrementAction,
+  incrementAction,
+  selectorCounter,
+} from "./counters.slice";
 
 import { usersSelector } from "./users.slice";
 import { useAppDispatch, useAppSelector } from "./store";
@@ -32,34 +36,30 @@ const Counter = ({ counterId }: { counterId: number }) => {
   // }, [counterId]);
 
   const dispatch = useAppDispatch();
+
   const counter = useAppSelector((state) => selectorCounter(state, counterId));
 
   console.log("counter: " + counterId);
 
+  // можно сделать биндинги при желании и вместо dispatch(decrementAction({ counterId })) писать bindedActions.decrementAction({ counterId })
+  // const bindedActions = bindActionCreators(
+  //   {
+  //     incrementAction,
+  //     decrementAction,
+  //   },
+  //   dispatch
+  // );
+
   return (
     <div className="card">
-      <button
-        onClick={() =>
-          dispatch({
-            type: "increment",
-            payload: { counterId },
-          } satisfies IncrementAction)
-        }
-      >
+      <button onClick={() => dispatch(incrementAction({ counterId }))}>
         increment
       </button>
 
-      <button
-        onClick={() => {
-          dispatch({
-            type: "decrement",
-            payload: { counterId },
-          } satisfies DecrementAction);
-        }}
-      >
+      <button onClick={() => dispatch(decrementAction({ counterId }))}>
         decrement
       </button>
-      <p>count is {counter?.counter}</p>
+      <p>count is {counter?.counter || 0}</p>
     </div>
   );
 };

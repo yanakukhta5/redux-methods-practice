@@ -1,64 +1,98 @@
-import { RootState } from "./store"
+import { createAction, createReducer } from "@reduxjs/toolkit";
 
-export type IncrementAction = {
- type: "increment";
- payload: {
-   counterId: number;
- };
-};
+import { RootState } from "./store";
 
-export type DecrementAction = {
- type: "decrement";
- payload: {
-   counterId: number;
- };
-};
+export const incrementAction = createAction<{
+  counterId: number;
+}>("counters/increment");
 
-export type Action = IncrementAction | DecrementAction;
+export const decrementAction = createAction<{
+  counterId: number;
+}>("counters/decrement");
+
+// export type IncrementAction = {
+//   type: "increment";
+//   payload: {
+//     counterId: number;
+//   };
+// };
+
+// export type DecrementAction = {
+//   type: "decrement";
+//   payload: {
+//     counterId: number;
+//   };
+// };
+
+//export type Action = IncrementAction | DecrementAction;
 
 export type CounterId = number;
 
 type CounterState = {
- counter: number;
+  counter: number;
 };
 
 type CountersState = Record<CounterId, CounterState | undefined>;
 
 // дефолтное состояние каунтера (при первом редюсера вызове его нет)
 export const initialCounterState: CounterState = {
- counter: 0,
+  counter: 0,
 };
 
-export const initialCountersState = {};
+export const initialCountersState: CountersState = {};
 
-export const countersReducer = (
- state: CountersState = initialCountersState,
- action: Action
-): CountersState => {
- switch (action.type) {
-   case "increment": {
-     const { counterId } = action.payload;
-     const counterObject = state[counterId] ?? initialCounterState;
+export const countersReducer = createReducer(
+  initialCountersState,
+  (builder) => {
+    builder.addCase(incrementAction, (state, action) => {
+      const { counterId } = action.payload;
+      const counterObject = state[counterId] ?? initialCounterState;
 
-     return {
-       ...state,
-       [counterId]: { ...counterObject, counter: counterObject.counter + 1 },
-     };
-   }
-   case "decrement": {
-     const { counterId } = action.payload;
-     const counterObject = state[counterId] ?? initialCounterState;
+      return {
+        ...state,
+        [counterId]: { ...counterObject, counter: counterObject.counter + 1 },
+      };
+    }),
+      builder.addCase(decrementAction, (state, action) => {
+        const { counterId } = action.payload;
+        const counterObject = state[counterId] ?? initialCounterState;
 
-     return {
-       ...state,
-       [counterId]: { ...counterObject, counter: counterObject.counter - 1 },
-     };
-   }
+        return {
+          ...state,
+          [counterId]: { ...counterObject, counter: counterObject.counter - 1 },
+        };
+      });
+  }
+);
 
-   default:
-     return state;
- }
-};
+// export const countersReducer = (
+//   state: CountersState = initialCountersState,
+//   action: Action
+// ): CountersState => {
+//   switch (action.type) {
+//     case "counters/increment": {
+//       const { counterId } = action.payload;
+//       const counterObject = state[counterId] ?? initialCounterState;
+
+//       return {
+//         ...state,
+//         [counterId]: { ...counterObject, counter: counterObject.counter + 1 },
+//       };
+//     }
+//     case "counters/decrement": {
+//       const { counterId } = action.payload;
+//       const counterObject = state[counterId] ?? initialCounterState;
+
+//       return {
+//         ...state,
+//         [counterId]: { ...counterObject, counter: counterObject.counter - 1 },
+//       };
+//     }
+
+//     default:
+//       return state;
+//   }
+// };
 
 export const selectorCounter = (store: RootState, counterId: CounterId) =>
- store.counters[counterId];
+  store.counters[counterId];
