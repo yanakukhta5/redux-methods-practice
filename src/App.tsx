@@ -1,15 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import "./App.css";
-import {
-  DecrementAction,
-  IncrementAction,
-  useAppDispatch,
-  useAppSelector,
-  selectorCounter,
-  GetUsersAction,
-  usersSelector,
-} from "./store";
+
+import { DecrementAction, IncrementAction, selectorCounter } from "./counters.slice";
+
+import { usersSelector } from "./users.slice";
+import { useAppDispatch, useAppSelector } from "./store";
 
 const Counter = ({ counterId }: { counterId: number }) => {
   // const [, forseUpdate] = useReducer((x) => x + 1, 0);
@@ -97,20 +93,6 @@ const UsersList = () => {
 };
 
 function App() {
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    dispatch({
-      type: "getUsersAction",
-      payload: {
-        users: [
-          { name: "Yana", id: "1" },
-          { name: "Andrew", id: "2" },
-        ],
-      },
-    } as GetUsersAction);
-  }, []);
-
   return (
     <>
       <Counter counterId={1} />
