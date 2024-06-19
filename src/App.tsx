@@ -8,7 +8,7 @@ import {
   selectorCounter,
 } from "./counters.slice";
 
-import { usersSelector } from "./users.slice";
+import { usersSlice } from "./users.slice";
 import { useAppDispatch, useAppSelector } from "./store";
 
 const Counter = ({ counterId }: { counterId: number }) => {
@@ -68,7 +68,7 @@ const UsersList = () => {
   const [sort, setSort] = useState<"asc" | "desc">("asc");
 
   // селекторы вызываются после каждого экшона
-  const sortedUsers = useAppSelector((state) => usersSelector(state, sort));
+  const sortedUsers = useAppSelector((state) => usersSlice.selectors.users(state, sort));
 
   console.log(`users`);
 

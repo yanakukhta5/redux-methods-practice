@@ -1,12 +1,9 @@
-import {
-  combineReducers,
-  configureStore
-} from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
 import { useSelector, useDispatch, useStore } from "react-redux";
 
 import { countersReducer } from "./counters.slice";
-import { usersReducer } from "./users.slice";
+import { usersSlice } from "./users.slice";
 
 // type GlobalState = {
 //   counters: CountersState;
@@ -34,7 +31,7 @@ import { usersReducer } from "./users.slice";
 // на каждый экшон вызывается редюсер, и уже редюсер решает что делать с изменениями
 
 const reducer = combineReducers({
-  users: usersReducer,
+  [usersSlice.name]: usersSlice.reducer,
   counters: countersReducer,
 });
 
@@ -42,15 +39,14 @@ export const store = configureStore({
   reducer: reducer,
 });
 
-store.dispatch({
-  type: "getUsersAction",
-  payload: {
+store.dispatch(
+  usersSlice.actions.getData({
     users: [
       { name: "Yana", id: "1" },
       { name: "Andrew", id: "2" },
     ],
-  },
-});
+  })
+);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
