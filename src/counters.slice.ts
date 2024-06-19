@@ -46,21 +46,29 @@ export const countersReducer = createReducer(
   (builder) => {
     builder.addCase(incrementAction, (state, action) => {
       const { counterId } = action.payload;
-      const counterObject = state[counterId] ?? initialCounterState;
+      // const counterObject = state[counterId] ?? initialCounterState;
 
-      return {
-        ...state,
-        [counterId]: { ...counterObject, counter: counterObject.counter + 1 },
-      };
+      if (!state[counterId]) state[counterId] = { ...initialCounterState };
+
+      state[counterId]!.counter++;
+
+      // return {
+      //   ...state,
+      //   [counterId]: { ...counterObject, counter: counterObject.counter + 1 },
+      // };
     }),
       builder.addCase(decrementAction, (state, action) => {
         const { counterId } = action.payload;
-        const counterObject = state[counterId] ?? initialCounterState;
+        // const counterObject = state[counterId] ?? initialCounterState;
 
-        return {
-          ...state,
-          [counterId]: { ...counterObject, counter: counterObject.counter - 1 },
-        };
+        if (!state[counterId]) state[counterId] = { ...initialCounterState };
+
+        state[counterId]!.counter--;
+
+        // return {
+        //   ...state,
+        //   [counterId]: { ...counterObject, counter: counterObject.counter - 1 },
+        // };
       });
   }
 );
