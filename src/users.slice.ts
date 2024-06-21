@@ -2,15 +2,17 @@ import { PayloadAction, createSlice, createSelector } from "@reduxjs/toolkit";
 
 export type User = {
   name: string;
-  id: string;
+  id: number;
+  description: string
 };
 
-type UserId = string;
+type UserId = number;
 
 type UsersState = {
   data: Record<UserId, User | undefined>;
   ids: UserId[];
   selectedUserId: UserId | undefined;
+  dataQueryState: "idle" | "pending" | "fullfield" | "rejected";
 };
 
 // export type GetUsersAction = {
@@ -40,6 +42,7 @@ export const initialState: UsersState = {
   selectedUserId: undefined,
   ids: [],
   data: {},
+  dataQueryState: "idle",
 };
 
 // описали состояние и экшон и можно создать редюсер
@@ -106,7 +109,13 @@ export const usersSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
-    getData(state, action: PayloadAction<{ users: User[] }>) {
+    setDataQueryStatePending(state: UsersState) {
+      state.dataQueryState = "pending";
+    },
+    setDataQueryStateRejected(state: UsersState) {
+      state.dataQueryState = "rejected";
+    },
+    setData(state, action: PayloadAction<{ users: User[] }>) {
       const { users } = action.payload;
 
       state.data = users.reduce((acc, user) => {
@@ -115,6 +124,7 @@ export const usersSlice = createSlice({
       }, {} as Record<UserId, User>);
 
       state.ids = users.map((user) => user.id);
+      state.dataQueryState = 'fullfield'
     },
 
     setSelectedId(state, action: PayloadAction<{ id: UserId }>) {
@@ -126,6 +136,8 @@ export const usersSlice = createSlice({
     },
   },
   selectors: {
+    isDataPending: (store: UsersState) => store.dataQueryState === "pending",
+    isDataIdle: (store: UsersState) => store.dataQueryState === "idle",
     users: createSelector(
       (store: UsersState) => store.ids,
       (store: UsersState) => store.data,

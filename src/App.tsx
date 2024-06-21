@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import "./App.css";
 
@@ -9,7 +9,8 @@ import {
 } from "./counters.slice";
 
 import { usersSlice } from "./users.slice";
-import { useAppDispatch, useAppSelector } from "./store";
+import { store, useAppDispatch, useAppSelector } from "./store";
+import { api } from "./shared/api";
 
 const Counter = ({ counterId }: { counterId: number }) => {
   // const [, forseUpdate] = useReducer((x) => x + 1, 0);
@@ -68,9 +69,25 @@ const UsersList = () => {
   const [sort, setSort] = useState<"asc" | "desc">("asc");
 
   // селекторы вызываются после каждого экшона
-  const sortedUsers = useAppSelector((state) => usersSlice.selectors.users(state, sort));
+  const sortedUsers = useAppSelector((state) =>
+    usersSlice.selectors.users(state, sort)
+  );
 
-  console.log(`users`);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    const isIdle = usersSlice.selectors.isDataIdle(store.getState());
+    if (!isIdle) return;
+
+    dispatch(usersSlice.actions.setDataQueryStatePending());
+    api
+      .getUsers()
+      .then((response) =>
+        dispatch(usersSlice.actions.setData({ users: response }))
+      );
+  }, [dispatch]);
+
+  // console.log(`users`);
 
   return (
     <>
@@ -82,7 +99,7 @@ const UsersList = () => {
       {sortedUsers.map((user) =>
         user ? (
           <p key={user.id}>
-            id: {user.id}, name: {user.name}
+            id: {user.id}, name: {user.name}, description: {user.description}
           </p>
         ) : (
           ""
@@ -96,8 +113,8 @@ function App() {
   return (
     <>
       <Counter counterId={1} />
-      <Counter counterId={2} />
-      <Counter counterId={3} />
+      {/* <Counter counterId={2} />
+      <Counter counterId={3} /> */}
 
       <UsersList />
     </>

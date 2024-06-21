@@ -39,15 +39,6 @@ export const store = configureStore({
   reducer: reducer,
 });
 
-store.dispatch(
-  usersSlice.actions.getData({
-    users: [
-      { name: "Yana", id: "1" },
-      { name: "Andrew", id: "2" },
-    ],
-  })
-);
-
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
