@@ -13,7 +13,7 @@ export const api = {
   getUsers: () => {
     return fetch(`${baseUrl}/users`)
       .then((response) => response.json())
-      .then((data) => UserDtoSchema.array().parse(data));
+      // .then((data) => UserDtoSchema.array().parse(data));
   },
 
   getUser: (id: number) => {

@@ -3,6 +3,9 @@ import App from "./App.tsx";
 import "./index.css";
 import { Provider } from "react-redux";
 import { store } from "./store.ts";
+import { getUsersData } from "./modules/users/model/index.tsx";
+
+getUsersData(store.getState, store.dispatch)
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Provider store={store}>

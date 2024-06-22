@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import "./App.css";
 
@@ -9,8 +9,7 @@ import {
 } from "./counters.slice";
 
 import { usersSlice } from "./users.slice";
-import { store, useAppDispatch, useAppSelector } from "./store";
-import { api } from "./shared/api";
+import { useAppDispatch, useAppSelector } from "./store";
 
 const Counter = ({ counterId }: { counterId: number }) => {
   // const [, forseUpdate] = useReducer((x) => x + 1, 0);
@@ -40,7 +39,7 @@ const Counter = ({ counterId }: { counterId: number }) => {
 
   const counter = useAppSelector((state) => selectorCounter(state, counterId));
 
-  console.log("counter: " + counterId);
+  console.log("counter number " + counterId);
 
   // можно сделать биндинги при желании и вместо dispatch(decrementAction({ counterId })) писать bindedActions.decrementAction({ counterId })
   // const bindedActions = bindActionCreators(
@@ -73,19 +72,12 @@ const UsersList = () => {
     usersSlice.selectors.users(state, sort)
   );
 
-  const dispatch = useAppDispatch();
+  // вынесли логику отдельно от реализации UI
+  // const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    const isIdle = usersSlice.selectors.isDataIdle(store.getState());
-    if (!isIdle) return;
-
-    dispatch(usersSlice.actions.setDataQueryStatePending());
-    api
-      .getUsers()
-      .then((response) =>
-        dispatch(usersSlice.actions.setData({ users: response }))
-      );
-  }, [dispatch]);
+  // useEffect(() => {
+  //   getUsersData(store.getState, dispatch)
+  // }, [dispatch]);
 
   // console.log(`users`);
 
