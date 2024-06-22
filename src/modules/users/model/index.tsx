@@ -3,8 +3,8 @@ import { AppDispatch, RootState } from "../../../store";
 import { usersSlice } from "../../../users.slice";
 
 export const getUsersData = (
-  getState: () => RootState,
-  dispatch: AppDispatch
+  dispatch: AppDispatch,
+  getState: () => RootState
 ) => {
   const isIdle = usersSlice.selectors.isDataIdle(getState());
   if (!isIdle) return;
