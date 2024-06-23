@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import { usersSlice } from "../../../slice";
@@ -7,7 +6,6 @@ import {
   useAppDispatch,
   RootState,
 } from "../../../../../store";
-import { getUserData } from "../../../model";
 import { deleteUser } from "../../../model";
 
 export const UserPage = () => {
@@ -17,10 +15,6 @@ export const UserPage = () => {
   const { id } = useParams();
 
   if (!id) navigate("/users");
-
-  useEffect(() => {
-    dispatch(getUserData({ userId: +id! }));
-  }, [dispatch, id]);
 
   const user = useAppSelector((state) =>
     usersSlice.selectors.user(state, +id!)
