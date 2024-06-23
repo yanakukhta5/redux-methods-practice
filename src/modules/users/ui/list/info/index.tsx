@@ -32,7 +32,7 @@ export const Info = ({id}: {id: number}) => {
   return (
     <p onClick={() => {
      dispatch(usersSlice.actions.setSelectedId({id}))
-     navigate(id)
+     navigate(`/user/${id}`)
     }}>
       id: {user.id}, name: {user.name}, description: {user.description}
     </p>

@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { usersSlice } from "../../slice";
-import { useAppSelector } from "../../../../store";
+import { useAppSelector, useAppDispatch } from "../../../../store";
+
+import { getUsersData } from "../../model";
 
 import { Info } from "./info";
 
@@ -21,6 +23,12 @@ export const List = () => {
   // }, [dispatch]);
 
   // console.log(`users`);
+
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(getUsersData());
+  }, [dispatch]);
 
   return (
     <>
