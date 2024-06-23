@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { usersSlice } from "../../slice";
-import { useAppSelector } from "../../../../store";
+import { useAppSelector } from "../../../../shared/redux";
 
 import { Info } from "./info";
 

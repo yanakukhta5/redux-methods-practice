@@ -1,14 +1,15 @@
 import { createBrowserRouter, redirect } from "react-router-dom";
 
-import App from "../App.tsx";
+import App from "../app";
 
-import { store } from "../store";
+import { store } from "../app/store";
 
 import { Counter } from "../modules/counters/ui/counter";
 import { List, UserPage } from "../modules/users";
 
 import { getUserData, getUsersData } from "../modules/users/model";
 
+// избавились от запросов внутри ui, вынесли в "инфраструктурный" уровень
 const loadStore = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 export const router = createBrowserRouter([

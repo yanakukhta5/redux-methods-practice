@@ -1,6 +1,6 @@
 import { createAction, createReducer } from "@reduxjs/toolkit";
 
-import { RootState } from "../../store";
+import { RootState } from "../../shared/redux";
 
 export const incrementAction = createAction<{
   counterId: number;

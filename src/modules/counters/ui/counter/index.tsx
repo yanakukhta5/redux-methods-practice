@@ -4,7 +4,7 @@ import {
   selectorCounter,
 } from "../../slice";
 
-import { useAppDispatch, useAppSelector } from "../../../../store";
+import { useAppDispatch, useAppSelector } from "../../../../shared/redux";
 
 export const Counter = ({ counterId }: { counterId: number }) => {
  // const [, forseUpdate] = useReducer((x) => x + 1, 0);

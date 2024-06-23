@@ -1,4 +1,4 @@
-import { AppThunk } from "../../../store";
+import { AppThunk } from "../../../shared/redux";
 import { usersSlice, UserId } from "../slice";
 
 // redux-thunk это простейший способ описания flow приложения в отрыве от ui

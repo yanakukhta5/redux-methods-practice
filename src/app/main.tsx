@@ -3,7 +3,7 @@ import { RouterProvider } from "react-router-dom";
 import "./index.css";
 import { Provider } from "react-redux";
 import { store } from "./store.ts";
-import { router } from "./router";
+import { router } from "../router";
 
 // store.dispatch(getUsersData())
 

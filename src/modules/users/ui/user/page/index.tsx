@@ -5,7 +5,7 @@ import {
   useAppSelector,
   useAppDispatch,
   RootState,
-} from "../../../../../store";
+} from "../../../../../shared/redux";
 import { deleteUser } from "../../../model";
 
 export const UserPage = () => {

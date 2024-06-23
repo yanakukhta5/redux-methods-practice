@@ -16,7 +16,7 @@
 
 import { useNavigate } from "react-router-dom";
 
-import { useAppSelector, useAppDispatch } from "../../../../../store";
+import { useAppSelector, useAppDispatch } from "../../../../../shared/redux";
 
 import { usersSlice } from "../../../slice";
 
