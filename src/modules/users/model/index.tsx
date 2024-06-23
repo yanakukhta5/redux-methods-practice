@@ -1,23 +1,27 @@
 import { AppThunk } from "../../../store";
 import { usersSlice, UserId } from "../slice";
 
+// redux-thunk это простейший способ описания flow приложения в отрыве от ui
+// даже router здесь представлен не столько как ui-единица, а стейт менеджер url
+
 export const getUsersData =
-  ({ refetch }: { refetch?: boolean }): AppThunk =>
-  (dispatch, getState, { api }) => {
+  ({ refetch }: { refetch?: boolean }): AppThunk<Promise<void>> =>
+  async (dispatch, getState, { api }) => {
     const isIdle = usersSlice.selectors.isDataIdle(getState());
     if (!isIdle && !refetch) return;
 
     dispatch(usersSlice.actions.setDataQueryStatePending());
-    api
-      .getUsers()
-      .then((response) =>
-        dispatch(usersSlice.actions.setData({ users: response }))
-      );
+    try {
+      const data = await api.getUsers();
+      dispatch(usersSlice.actions.setData({ users: data }));
+    } catch {
+      dispatch(usersSlice.actions.setDataQueryStateRejected());
+    }
   };
 
 export const getUserData =
-  ({ userId }: { userId: UserId }): AppThunk =>
-  (dispatch, getState, { api }) => {
+  ({ userId }: { userId: UserId }): AppThunk<Promise<void>> =>
+  async (dispatch, getState, { api }) => {
     const queryState = usersSlice.selectors.userQueryState(getState(), userId);
 
     if (queryState === "idle") return;
@@ -30,16 +34,15 @@ export const getUserData =
     );
 
     try {
-      api.getUser(userId).then((response) => {
-        dispatch(usersSlice.actions.setUserData({ user: response }));
+      const data = await api.getUser(userId);
+      dispatch(usersSlice.actions.setUserData({ user: data }));
 
-        dispatch(
-          usersSlice.actions.setUserIdState({
-            userId,
-            queryState: "fullfield",
-          })
-        );
-      });
+      dispatch(
+        usersSlice.actions.setUserIdState({
+          userId,
+          queryState: "fullfield",
+        })
+      );
     } catch {
       dispatch(
         usersSlice.actions.setUserIdState({
@@ -51,22 +54,35 @@ export const getUserData =
   };
 
 export const deleteUser =
-  ({ userId }: { userId: UserId }): AppThunk =>
-  (dispatch, _, { api }) => {
-    api.deleteUser(userId).then(() => {
+  // прописали что диспатч возвращает промис
+
+
+    ({ userId }: { userId: UserId }): AppThunk<Promise<void>> =>
+    async (dispatch, _, { api, router }) => {
       dispatch(
         usersSlice.actions.setDeleteUserStatus({
           status: "pending",
         })
       );
-      dispatch(usersSlice.actions.deleteUser({ userId }));
+      try {
+        await api.deleteUser(userId);
 
-      dispatch(getUsersData({ refetch: true }));
+       // dispatch(usersSlice.actions.deleteUser({ userId }));
 
-      dispatch(
-        usersSlice.actions.setDeleteUserStatus({
-          status: "fullfield",
-        })
-      );
-    });
-  };
+        await dispatch(getUsersData({ refetch: true }));
+
+        await router.navigate("/users");
+
+        dispatch(
+          usersSlice.actions.setDeleteUserStatus({
+            status: "fullfield",
+          })
+        );
+      } catch {
+        dispatch(
+          usersSlice.actions.setDeleteUserStatus({
+            status: "rejected",
+          })
+        );
+      }
+    };

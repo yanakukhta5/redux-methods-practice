@@ -148,7 +148,7 @@ export const usersSlice = createSlice({
 
     setUserData(state, action: PayloadAction<{ user: User }>) {
       const { user } = action.payload;
-      state.data[user.id] = user; 
+      state.data[user.id] = user;
     },
 
     setUserIdState(

@@ -2,14 +2,19 @@ import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import { usersSlice } from "../../../slice";
-import { useAppSelector, useAppDispatch } from "../../../../../store";
+import {
+  useAppSelector,
+  useAppDispatch,
+  RootState,
+} from "../../../../../store";
 import { getUserData } from "../../../model";
+import { deleteUser } from "../../../model";
 
 export const UserPage = () => {
   const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
-  const { id } = useParams()
+  const { id } = useParams();
 
   if (!id) navigate("/users");
 
@@ -21,13 +26,28 @@ export const UserPage = () => {
     usersSlice.selectors.user(state, +id!)
   );
 
+  const isUserPending = useAppSelector(
+    (state: RootState) => state.users.entities[+id!] === "pending"
+  );
+
+    const isDeletePending = useAppSelector(
+      (state: RootState) => state.users.deleteUserStatus === "pending"
+    );
+
+  const handleDelete = () => {
+    // обработали результат dispatch как промис
+    dispatch(deleteUser({ userId: +id! }));
+  };
+
+  if (isUserPending) return <p>Loading...</p>;
+
   return (
     <div>
       <h1>{user?.name}</h1>
 
       <p>{user?.description}</p>
 
-      <button onClick={() => dispatch(usersSlice.actions.deleteUser({userId: +id!}))}>delete user</button>
+      <button disabled={isDeletePending} onClick={handleDelete}>delete user</button>
     </div>
   );
 };

@@ -7,6 +7,7 @@ import {
 import { useSelector, useDispatch, useStore } from "react-redux";
 
 import { api } from "./shared/api";
+import { router } from "./router";
 
 import { countersReducer } from "./modules/counters";
 import { usersSlice } from "./modules/users";
@@ -42,7 +43,7 @@ const reducer = combineReducers({
 });
 
 const extraArgument = { // объект дополнительных данных, которые мы может использовать в middleware
-  api,
+  api, router
 };
 
 type ExtraArgumentType = typeof extraArgument;

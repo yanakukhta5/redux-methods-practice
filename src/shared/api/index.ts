@@ -1,5 +1,7 @@
 // import { z } from "zod";
 
+import { User } from "../../modules/users/slice";
+
 const baseUrl = "http://localhost:3000";
 
 // dto - на сленге описание "транспортного" (не полноценный объект из бизнес логики) объекта, т.е. "который приходит с сервера"
@@ -10,7 +12,7 @@ const baseUrl = "http://localhost:3000";
 // });
 
 export const api = {
-  getUsers: () => {
+  getUsers: (): Promise<User[]> => {
     return fetch(`${baseUrl}/users`).then((response) => response.json());
     // .then((data) => UserDtoSchema.array().parse(data));
   },
