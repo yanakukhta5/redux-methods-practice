@@ -27,7 +27,7 @@ export const List = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(getUsersData());
+    dispatch(getUsersData({refetch: false}));
   }, [dispatch]);
 
   return (

@@ -6,13 +6,17 @@ export type User = {
   description: string;
 };
 
-type UserId = number;
+export type UserId = number;
+
+type DataQueryState = "idle" | "pending" | "fullfield" | "rejected";
 
 type UsersState = {
   data: Record<UserId, User | undefined>;
   ids: UserId[];
   selectedUserId: UserId | undefined;
-  dataQueryState: "idle" | "pending" | "fullfield" | "rejected";
+  dataQueryState: DataQueryState;
+  deleteUserStatus:DataQueryState;
+  entities: Record<UserId, DataQueryState>;
 };
 
 // export type GetUsersAction = {
@@ -43,6 +47,9 @@ export const initialState: UsersState = {
   ids: [],
   data: {},
   dataQueryState: "idle",
+  deleteUserStatus: "idle",
+  entities: {},
+  // данные о состоянии загрузки каждого пользователя
 };
 
 // описали состояние и экшон и можно создать редюсер
@@ -112,9 +119,11 @@ export const usersSlice = createSlice({
     setDataQueryStatePending(state: UsersState) {
       state.dataQueryState = "pending";
     },
+
     setDataQueryStateRejected(state: UsersState) {
       state.dataQueryState = "rejected";
     },
+
     setData(state, action: PayloadAction<{ users: User[] }>) {
       const { users } = action.payload;
 
@@ -125,6 +134,29 @@ export const usersSlice = createSlice({
 
       state.ids = users.map((user) => user.id);
       state.dataQueryState = "fullfield";
+    },
+
+    deleteUser(state, action: PayloadAction<{ userId: UserId }>){
+      const { userId } = action.payload;
+      state.data[userId] = undefined;
+    },
+
+    setDeleteUserStatus(state, action: PayloadAction<{ status: DataQueryState }>){
+      const { status } = action.payload;
+      state.deleteUserStatus = status
+    },
+
+    setUserData(state, action: PayloadAction<{ user: User }>) {
+      const { user } = action.payload;
+      state.data[user.id] = user; 
+    },
+
+    setUserIdState(
+      state,
+      action: PayloadAction<{ userId: UserId; queryState: DataQueryState }>
+    ) {
+      const { userId, queryState } = action.payload;
+      state.entities[userId] = queryState;
     },
 
     setSelectedId(state, action: PayloadAction<{ id: UserId }>) {
@@ -139,6 +171,7 @@ export const usersSlice = createSlice({
     isDataPending: (store: UsersState) => store.dataQueryState === "pending",
     isDataIdle: (store: UsersState) => store.dataQueryState === "idle",
     user: (store: UsersState, id: UserId) => store.data[id],
+    userQueryState: (store: UsersState, id: UserId) => store.entities[id],
     users: createSelector(
       (store: UsersState) => store.ids,
       (store: UsersState) => store.data,
