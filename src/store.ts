@@ -8,8 +8,8 @@ import { useSelector, useDispatch, useStore } from "react-redux";
 
 import { api } from "./shared/api";
 
-import { countersReducer } from "./counters.slice";
-import { usersSlice } from "./users.slice";
+import { countersReducer } from "./modules/counters";
+import { usersSlice } from "./modules/users";
 
 // type GlobalState = {
 //   counters: CountersState;

@@ -3,7 +3,7 @@ import { PayloadAction, createSlice, createSelector } from "@reduxjs/toolkit";
 export type User = {
   name: string;
   id: number;
-  description: string
+  description: string;
 };
 
 type UserId = number;
@@ -124,7 +124,7 @@ export const usersSlice = createSlice({
       }, {} as Record<UserId, User>);
 
       state.ids = users.map((user) => user.id);
-      state.dataQueryState = 'fullfield'
+      state.dataQueryState = "fullfield";
     },
 
     setSelectedId(state, action: PayloadAction<{ id: UserId }>) {
@@ -138,20 +138,33 @@ export const usersSlice = createSlice({
   selectors: {
     isDataPending: (store: UsersState) => store.dataQueryState === "pending",
     isDataIdle: (store: UsersState) => store.dataQueryState === "idle",
+    user: (store: UsersState, id: UserId) => store.data[id],
     users: createSelector(
       (store: UsersState) => store.ids,
       (store: UsersState) => store.data,
       (_: UsersState, sort: "asc" | "desc") => sort,
 
       (ids, users, sort) =>
-        (ids.map((id) => users[id]) as User[]).sort((userA, userB) => {
-          switch (sort) {
-            case "asc":
-              return userA?.name.localeCompare(userB.name);
-            case "desc":
-              return userB?.name.localeCompare(userA.name);
-          }
-        })
+        // (ids.map((id) => users[id]) as User[]).sort((userA, userB) => {
+        ids
+          .map((id) => users[id])
+          .filter((user): user is User => !!user) // добавили type guard
+          .sort((userA, userB) => {
+            switch (sort) {
+              case "asc":
+                return userA?.name.localeCompare(userB.name);
+              case "desc":
+                return userB?.name.localeCompare(userA.name);
+            }
+          })
     ),
   },
 });
+
+// установить и интегрировать роутер
+// добавить страницу пользователя (id из роутера) (отображение лоадинга)
+// прописать навигации
+// добавить селекторы данных о загрузке конкретного пользователя
+// добавить thunk для получения пользователя (id передаётся в аргумент, refetch тоже)
+// опцианально добавить получение статуса загрузки по id у user
+// добавить thunk для удаления пользователя (id передаётся в аргумент, можно снова запросить пользователей с refetch)

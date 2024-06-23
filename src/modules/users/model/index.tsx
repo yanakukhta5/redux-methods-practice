@@ -1,5 +1,5 @@
 import { AppThunk } from "../../../store";
-import { usersSlice } from "../../../users.slice";
+import { usersSlice } from "../slice";
 
 export const getUsersData =
   (): AppThunk =>
