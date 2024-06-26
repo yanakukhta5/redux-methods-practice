@@ -1,4 +1,4 @@
-import { type UnknownAction, type ThunkAction } from "@reduxjs/toolkit";
+import { type UnknownAction, type ThunkAction, createAsyncThunk } from "@reduxjs/toolkit";
 
 import { useSelector, useDispatch, useStore } from "react-redux";
 
@@ -28,3 +28,10 @@ export type AppThunk<ReturnOfThunk = void> = ThunkAction<
 export const useAppSelector = useSelector.withTypes<RootState>();
 export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 export const useAppStore = useStore.withTypes<typeof store>();
+
+// createAppAsyncThunk создаёт экшоны, то есть возвращает объекты
+export const createAppAsyncThunk = createAsyncThunk.withTypes<{
+ state: RootState;
+ dispatch: AppDispatch;
+ extra: ExtraArgumentType;
+}>();

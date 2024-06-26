@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice, createSelector } from "@reduxjs/toolkit";
+import { getUsersData } from "./model";
 
 export type User = {
   name: string;
@@ -15,7 +16,7 @@ type UsersState = {
   ids: UserId[];
   selectedUserId: UserId | undefined;
   dataQueryState: DataQueryState;
-  deleteUserStatus:DataQueryState;
+  deleteUserStatus: DataQueryState;
   entities: Record<UserId, DataQueryState>;
 };
 
@@ -116,34 +117,37 @@ export const usersSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
-    setDataQueryStatePending(state: UsersState) {
-      state.dataQueryState = "pending";
-    },
+    // setDataQueryStatePending(state: UsersState) {
+    //   state.dataQueryState = "pending";
+    // },
 
-    setDataQueryStateRejected(state: UsersState) {
-      state.dataQueryState = "rejected";
-    },
+    // setDataQueryStateRejected(state: UsersState) {
+    //   state.dataQueryState = "rejected";
+    // },
 
-    setData(state, action: PayloadAction<{ users: User[] }>) {
-      const { users } = action.payload;
+    // setData(state, action: PayloadAction<{ users: User[] }>) {
+    //   const { users } = action.payload;
 
-      state.data = users.reduce((acc, user) => {
-        acc[user.id] = user;
-        return acc;
-      }, {} as Record<UserId, User>);
+    //   state.data = users.reduce((acc, user) => {
+    //     acc[user.id] = user;
+    //     return acc;
+    //   }, {} as Record<UserId, User>);
 
-      state.ids = users.map((user) => user.id);
-      state.dataQueryState = "fullfield";
-    },
+    //   state.ids = users.map((user) => user.id);
+    //   state.dataQueryState = "fullfield";
+    // },
 
-    deleteUser(state, action: PayloadAction<{ userId: UserId }>){
+    deleteUser(state, action: PayloadAction<{ userId: UserId }>) {
       const { userId } = action.payload;
       state.data[userId] = undefined;
     },
 
-    setDeleteUserStatus(state, action: PayloadAction<{ status: DataQueryState }>){
+    setDeleteUserStatus(
+      state,
+      action: PayloadAction<{ status: DataQueryState }>
+    ) {
       const { status } = action.payload;
-      state.deleteUserStatus = status
+      state.deleteUserStatus = status;
     },
 
     setUserData(state, action: PayloadAction<{ user: User }>) {
@@ -166,6 +170,27 @@ export const usersSlice = createSlice({
     resetSelectedId(state) {
       state.selectedUserId = undefined;
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(
+      getUsersData.pending,
+      (state) => {state.dataQueryState = "pending"}
+    ).addCase(
+      getUsersData.rejected,
+      (state) => {state.dataQueryState = "rejected"}
+    ).addCase(getUsersData.fulfilled, (state, action) => {
+      state.dataQueryState = "fullfield";
+
+      const users = action.payload
+
+      state.data = users.reduce((acc, user) => {
+        acc[user.id] = user;
+        return acc;
+      }, {} as Record<UserId, User>);
+
+      state.ids = users.map((user) => user.id);
+      state.dataQueryState = "fullfield";
+    });
   },
   selectors: {
     isDataPending: (store: UsersState) => store.dataQueryState === "pending",
