@@ -1,14 +1,17 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { skipToken } from "@reduxjs/toolkit/query";
 
+import { deleteUser } from "../../../model";
+
 // import { useAppDispatch } from "../../../../../shared/redux";
 
-import { useGetUserQuery, useDeleteUserMutation } from "../../../api";
+import { useGetUserQuery, usersApi } from "../../../api";
+import { useAppDispatch, useAppSelector } from "../../../../../shared/redux";
 
 //import { deleteUser } from "../../../model";
 
 export const UserPage = () => {
- // const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -16,20 +19,25 @@ export const UserPage = () => {
   if (!id) navigate("/users");
 
   // если передан skipToken? то запрос выполнен не будет
-  const { data: user, isLoading } = useGetUserQuery(+id! ?? skipToken); 
+  const { data: user, isLoading } = useGetUserQuery(+id! ?? skipToken);
 
   // первый аргумент - функция для вызова мутации, второй - состояние её выполнения
-  const [deleteUser, {isLoading: isLoadingUserDelete}] = useDeleteUserMutation()
+  // const [deleteUser, {isLoading: isLoadingUserDelete}] = useDeleteUserMutation()
 
   // const handleDelete = () => {
   //   // обработали результат dispatch как промис
   //   dispatch(deleteUser({ userId: +id! }));
   // };
 
-    const handleDelete = async () => {
-      if (!id) return
-      await deleteUser(+id)
-      navigate("/users");
+  // селекторы можно использовать для mutation, но нельзя query (так как будет нарушение парадигмы соединения компонента и сервера)
+  const isLoadingUserDelete = useAppSelector(
+    (state) =>
+      usersApi.endpoints.deleteUser.select(id ?? skipToken)(state).isLoading
+  );
+
+  const handleDelete = async () => {
+    if (!id) return;
+    await dispatch(deleteUser(+id))
   };
 
   if (isLoading) return <p>Loading...</p>;
