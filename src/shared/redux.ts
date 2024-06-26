@@ -1,4 +1,4 @@
-import { type UnknownAction, type ThunkAction, createAsyncThunk } from "@reduxjs/toolkit";
+import { type UnknownAction, type ThunkAction, createAsyncThunk, buildCreateSlice, asyncThunkCreator } from "@reduxjs/toolkit";
 
 import { useSelector, useDispatch, useStore } from "react-redux";
 
@@ -10,7 +10,7 @@ import type {store, extraArgument } from '../app/store'
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
-type ExtraArgumentType = typeof extraArgument;
+export type ExtraArgumentType = typeof extraArgument;
 
 export type AppThunk<ReturnOfThunk = void> = ThunkAction<
   ReturnOfThunk, // Return type of the thunk function
@@ -35,3 +35,13 @@ export const createAppAsyncThunk = createAsyncThunk.withTypes<{
  dispatch: AppDispatch;
  extra: ExtraArgumentType;
 }>();
+
+
+// кастомный createSlice чуть увеличит бандл приложения
+export const createAppSlice = buildCreateSlice(
+  {
+    creators: {
+      asyncThunk: asyncThunkCreator
+    }
+  }
+)

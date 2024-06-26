@@ -29,39 +29,39 @@ export const getUsersData = createAppAsyncThunk(
   }
 );
 
-export const getUserData =
-  ({ userId }: { userId: UserId }): AppThunk<Promise<void>> =>
-  async (dispatch, getState, { api }) => {
-    const queryState = usersSlice.selectors.userQueryState(getState(), userId);
+// export const getUserData =
+//   ({ userId }: { userId: UserId }): AppThunk<Promise<void>> =>
+//   async (dispatch, getState, { api }) => {
+//     const queryState = usersSlice.selectors.userQueryState(getState(), userId);
 
-    if (queryState === "idle") return;
+//     if (queryState === "idle") return;
 
-    dispatch(
-      usersSlice.actions.setUserIdState({
-        userId,
-        queryState: "pending",
-      })
-    );
+//     dispatch(
+//       usersSlice.actions.setUserIdState({
+//         userId,
+//         queryState: "pending",
+//       })
+//     );
 
-    try {
-      const data = await api.getUser(userId);
-      dispatch(usersSlice.actions.setUserData({ user: data }));
+//     try {
+//       const data = await api.getUser(userId);
+//       dispatch(usersSlice.actions.getUser({ user: data }));
 
-      dispatch(
-        usersSlice.actions.setUserIdState({
-          userId,
-          queryState: "fullfield",
-        })
-      );
-    } catch {
-      dispatch(
-        usersSlice.actions.setUserIdState({
-          userId,
-          queryState: "rejected",
-        })
-      );
-    }
-  };
+//       dispatch(
+//         usersSlice.actions.setUserIdState({
+//           userId,
+//           queryState: "fulfilled",
+//         })
+//       );
+//     } catch {
+//       dispatch(
+//         usersSlice.actions.setUserIdState({
+//           userId,
+//           queryState: "rejected",
+//         })
+//       );
+//     }
+//   };
 
 export const deleteUser =
   // прописали что диспатч возвращает промис
@@ -85,7 +85,7 @@ export const deleteUser =
 
         dispatch(
           usersSlice.actions.setDeleteUserStatus({
-            status: "fullfield",
+            status: "fulfilled",
           })
         );
       } catch {

@@ -1,5 +1,7 @@
-import { PayloadAction, createSlice, createSelector } from "@reduxjs/toolkit";
+import { PayloadAction, createSelector } from "@reduxjs/toolkit";
 import { getUsersData } from "./model";
+
+import { createAppSlice, type ExtraArgumentType } from "../../shared/redux";
 
 export type User = {
   name: string;
@@ -9,7 +11,7 @@ export type User = {
 
 export type UserId = number;
 
-type DataQueryState = "idle" | "pending" | "fullfield" | "rejected";
+type DataQueryState = "idle" | "pending" | "fulfilled" | "rejected";
 
 type UsersState = {
   data: Record<UserId, User | undefined>;
@@ -113,10 +115,33 @@ export const initialState: UsersState = {
 //     })
 // );
 
-export const usersSlice = createSlice({
+export const usersSlice = createAppSlice({
   name: "users",
   initialState,
-  reducers: {
+  reducers: (creator) => ({
+    getUser: creator.asyncThunk<
+      User, // тип слайса
+      { userId: UserId }, // тип параметров
+      { extra: ExtraArgumentType } // тип extraArguments
+    >(
+      (params, thunkAPI) => {
+        return thunkAPI.extra.api.getUser(params.userId);
+      },
+      {
+        fulfilled: (state, action) => {
+          const user = action.payload;
+          state.data[user.id] = user;
+
+          state.entities[user.id] = "fulfilled";
+        },
+        pending: (state, action) => {
+          state.entities[action.meta.arg.userId] = "pending";
+        },
+        rejected: (state, action) => {
+          state.entities[action.meta.arg.userId] = "rejected";
+        }
+      }
+    ),
     // setDataQueryStatePending(state: UsersState) {
     //   state.dataQueryState = "pending";
     // },
@@ -134,63 +159,64 @@ export const usersSlice = createSlice({
     //   }, {} as Record<UserId, User>);
 
     //   state.ids = users.map((user) => user.id);
-    //   state.dataQueryState = "fullfield";
+    //   state.dataQueryState = "fulfilled";
     // },
 
-    deleteUser(state, action: PayloadAction<{ userId: UserId }>) {
+    deleteUser: creator.reducer((state, action: PayloadAction<{ userId: UserId }>) => {
       const { userId } = action.payload;
       state.data[userId] = undefined;
-    },
+    }),
 
-    setDeleteUserStatus(
+    setDeleteUserStatus: creator.reducer((
       state,
       action: PayloadAction<{ status: DataQueryState }>
-    ) {
+    ) => {
       const { status } = action.payload;
       state.deleteUserStatus = status;
-    },
+    }),
 
-    setUserData(state, action: PayloadAction<{ user: User }>) {
-      const { user } = action.payload;
-      state.data[user.id] = user;
-    },
+    // setUserData(state, action: PayloadAction<{ user: User }>) {
+    //   const { user } = action.payload;
+    //   state.data[user.id] = user;
+    // },
 
-    setUserIdState(
-      state,
-      action: PayloadAction<{ userId: UserId; queryState: DataQueryState }>
-    ) {
-      const { userId, queryState } = action.payload;
-      state.entities[userId] = queryState;
-    },
+    // setUserIdState(
+    //   state,
+    //   action: PayloadAction<{ userId: UserId; queryState: DataQueryState }>
+    // ) {
+    //   const { userId, queryState } = action.payload;
+    //   state.entities[userId] = queryState;
+    // },
 
-    setSelectedId(state, action: PayloadAction<{ id: UserId }>) {
+    setSelectedId: creator.reducer((state, action: PayloadAction<{ id: UserId }>) => {
       state.selectedUserId = action.payload.id;
-    },
+    }),
 
-    resetSelectedId(state) {
+    resetSelectedId: creator.reducer((state) => {
       state.selectedUserId = undefined;
-    },
-  },
+    }),
+  }),
   extraReducers: (builder) => {
-    builder.addCase(
-      getUsersData.pending,
-      (state) => {state.dataQueryState = "pending"}
-    ).addCase(
-      getUsersData.rejected,
-      (state) => {state.dataQueryState = "rejected"}
-    ).addCase(getUsersData.fulfilled, (state, action) => {
-      state.dataQueryState = "fullfield";
+    builder
+      .addCase(getUsersData.pending, (state) => {
+        state.dataQueryState = "pending";
+      })
+      .addCase(getUsersData.rejected, (state) => {
+        state.dataQueryState = "rejected";
+      })
+      .addCase(getUsersData.fulfilled, (state, action) => {
+        state.dataQueryState = "fulfilled";
 
-      const users = action.payload
+        const users = action.payload;
 
-      state.data = users.reduce((acc, user) => {
-        acc[user.id] = user;
-        return acc;
-      }, {} as Record<UserId, User>);
+        state.data = users.reduce((acc, user) => {
+          acc[user.id] = user;
+          return acc;
+        }, {} as Record<UserId, User>);
 
-      state.ids = users.map((user) => user.id);
-      state.dataQueryState = "fullfield";
-    });
+        state.ids = users.map((user) => user.id);
+        state.dataQueryState = "fulfilled";
+      });
   },
   selectors: {
     isDataPending: (store: UsersState) => store.dataQueryState === "pending",

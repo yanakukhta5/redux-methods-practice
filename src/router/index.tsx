@@ -7,7 +7,9 @@ import { store } from "../app/store";
 import { Counter } from "../modules/counters/ui/counter";
 import { List, UserPage } from "../modules/users";
 
-import { getUserData, getUsersData } from "../modules/users/model";
+import { getUsersData } from "../modules/users/model";
+
+import { usersSlice } from "../modules/users";
 
 // избавились от запросов внутри ui, вынесли в "инфраструктурный" уровень
 const loadStore = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -30,7 +32,7 @@ export const router = createBrowserRouter([
         path: "user/:id",
         element: <UserPage />,
         loader: ({ params: { id } }) => {
-          loadStore().then(() => store.dispatch(getUserData({ userId: +id! })))
+          loadStore().then(() => store.dispatch(usersSlice.actions.getUser({ userId: +id! })))
           return null
         },
       },
