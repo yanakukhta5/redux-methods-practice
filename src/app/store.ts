@@ -1,12 +1,9 @@
-import {
-  combineReducers,
-  configureStore,
-} from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-import { api } from "../shared/api";
+import { baseApi } from "../shared/api";
 import { router } from "../router";
 
-import { countersReducer } from "../modules/counters"
+import { countersReducer } from "../modules/counters";
 import { usersSlice } from "../modules/users";
 
 // type GlobalState = {
@@ -36,11 +33,13 @@ import { usersSlice } from "../modules/users";
 
 const reducer = combineReducers({
   [usersSlice.name]: usersSlice.reducer,
+  [baseApi.reducerPath]: baseApi.reducer,
   counters: countersReducer,
 });
 
-export const extraArgument = { // объект дополнительных данных, которые мы может использовать в middleware
-  api, router
+export const extraArgument = {
+  // объект дополнительных данных, которые мы может использовать в middleware
+  router,
 };
 
 export const store = configureStore({
@@ -52,5 +51,5 @@ export const store = configureStore({
         extraArgument,
       },
       serializableCheck: false,
-    }),
+    }).concat(baseApi.middleware),
 });

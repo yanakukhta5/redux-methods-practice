@@ -1,7 +1,6 @@
-import { PayloadAction, createSelector } from "@reduxjs/toolkit";
-import { getUsersData } from "./model";
+import { PayloadAction } from "@reduxjs/toolkit";
 
-import { createAppSlice, type ExtraArgumentType } from "../../shared/redux";
+import { createAppSlice } from "../../shared/redux";
 
 export type User = {
   name: string;
@@ -119,29 +118,30 @@ export const usersSlice = createAppSlice({
   name: "users",
   initialState,
   reducers: (creator) => ({
-    getUser: creator.asyncThunk<
-      User, // тип слайса
-      { userId: UserId }, // тип параметров
-      { extra: ExtraArgumentType } // тип extraArguments
-    >(
-      (params, thunkAPI) => {
-        return thunkAPI.extra.api.getUser(params.userId);
-      },
-      {
-        fulfilled: (state, action) => {
-          const user = action.payload;
-          state.data[user.id] = user;
+    // getUser: creator.asyncThunk<
+    //   User, // тип слайса
+    //   { userId: UserId }, // тип параметров
+    //   { extra: ExtraArgumentType } // тип extraArguments
+    // >(
+    //   (params, thunkAPI) => {
+    //     return thunkAPI.extra.api.getUser(params.userId);
+    //   },
+    //   {
+    //     fulfilled: (state, action) => {
+    //       const user = action.payload;
+    //       state.data[user.id] = user;
 
-          state.entities[user.id] = "fulfilled";
-        },
-        pending: (state, action) => {
-          state.entities[action.meta.arg.userId] = "pending";
-        },
-        rejected: (state, action) => {
-          state.entities[action.meta.arg.userId] = "rejected";
-        }
-      }
-    ),
+    //       state.entities[user.id] = "fulfilled";
+    //     },
+    //     pending: (state, action) => {
+    //       state.entities[action.meta.arg.userId] = "pending";
+    //     },
+    //     rejected: (state, action) => {
+    //       state.entities[action.meta.arg.userId] = "rejected";
+    //     }
+    //   }
+    // ),
+
     // setDataQueryStatePending(state: UsersState) {
     //   state.dataQueryState = "pending";
     // },
@@ -196,52 +196,52 @@ export const usersSlice = createAppSlice({
       state.selectedUserId = undefined;
     }),
   }),
-  extraReducers: (builder) => {
-    builder
-      .addCase(getUsersData.pending, (state) => {
-        state.dataQueryState = "pending";
-      })
-      .addCase(getUsersData.rejected, (state) => {
-        state.dataQueryState = "rejected";
-      })
-      .addCase(getUsersData.fulfilled, (state, action) => {
-        state.dataQueryState = "fulfilled";
+  // extraReducers: (builder) => {
+  //   builder
+  //     .addCase(getUsersData.pending, (state) => {
+  //       state.dataQueryState = "pending";
+  //     })
+  //     .addCase(getUsersData.rejected, (state) => {
+  //       state.dataQueryState = "rejected";
+  //     })
+  //     .addCase(getUsersData.fulfilled, (state, action) => {
+  //       state.dataQueryState = "fulfilled";
 
-        const users = action.payload;
+  //       const users = action.payload;
 
-        state.data = users.reduce((acc, user) => {
-          acc[user.id] = user;
-          return acc;
-        }, {} as Record<UserId, User>);
+  //       state.data = users.reduce((acc, user) => {
+  //         acc[user.id] = user;
+  //         return acc;
+  //       }, {} as Record<UserId, User>);
 
-        state.ids = users.map((user) => user.id);
-        state.dataQueryState = "fulfilled";
-      });
-  },
+  //       state.ids = users.map((user) => user.id);
+  //       state.dataQueryState = "fulfilled";
+  //     });
+  // },
   selectors: {
-    isDataPending: (store: UsersState) => store.dataQueryState === "pending",
-    isDataIdle: (store: UsersState) => store.dataQueryState === "idle",
-    user: (store: UsersState, id: UserId) => store.data[id],
-    userQueryState: (store: UsersState, id: UserId) => store.entities[id],
-    users: createSelector(
-      (store: UsersState) => store.ids,
-      (store: UsersState) => store.data,
-      (_: UsersState, sort: "asc" | "desc") => sort,
+    // isDataPending: (store: UsersState) => store.dataQueryState === "pending",
+    // isDataIdle: (store: UsersState) => store.dataQueryState === "idle",
+    // user: (store: UsersState, id: UserId) => store.data[id],
+    // userQueryState: (store: UsersState, id: UserId) => store.entities[id],
+    // users: createSelector(
+    //   (store: UsersState) => store.ids,
+    //   (store: UsersState) => store.data,
+    //   (_: UsersState, sort: "asc" | "desc") => sort,
 
-      (ids, users, sort) =>
-        // (ids.map((id) => users[id]) as User[]).sort((userA, userB) => {
-        ids
-          .map((id) => users[id])
-          .filter((user): user is User => !!user) // добавили type guard
-          .sort((userA, userB) => {
-            switch (sort) {
-              case "asc":
-                return userA?.name.localeCompare(userB.name);
-              case "desc":
-                return userB?.name.localeCompare(userA.name);
-            }
-          })
-    ),
+    //   (ids, users, sort) =>
+    //     // (ids.map((id) => users[id]) as User[]).sort((userA, userB) => {
+    //     ids
+    //       .map((id) => users[id])
+    //       .filter((user): user is User => !!user) // добавили type guard
+    //       .sort((userA, userB) => {
+    //         switch (sort) {
+    //           case "asc":
+    //             return userA?.name.localeCompare(userB.name);
+    //           case "desc":
+    //             return userB?.name.localeCompare(userA.name);
+    //         }
+    //       })
+    // ),
   },
 });
 

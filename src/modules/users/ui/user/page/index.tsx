@@ -1,39 +1,38 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { skipToken } from "@reduxjs/toolkit/query";
 
-import { usersSlice } from "../../../slice";
-import {
-  useAppSelector,
-  useAppDispatch,
-  RootState,
-} from "../../../../../shared/redux";
-import { deleteUser } from "../../../model";
+// import { useAppDispatch } from "../../../../../shared/redux";
+
+import { useGetUserQuery, useDeleteUserMutation } from "../../../api";
+
+//import { deleteUser } from "../../../model";
 
 export const UserPage = () => {
-  const dispatch = useAppDispatch();
+ // const dispatch = useAppDispatch();
 
   const navigate = useNavigate();
   const { id } = useParams();
 
   if (!id) navigate("/users");
 
-  const user = useAppSelector((state) =>
-    usersSlice.selectors.user(state, +id!)
-  );
+  // если передан skipToken? то запрос выполнен не будет
+  const { data: user, isLoading } = useGetUserQuery(+id! ?? skipToken); 
 
-  const isUserPending = useAppSelector(
-    (state: RootState) => state.users.entities[+id!] === "pending"
-  );
+  // первый аргумент - функция для вызова мутации, второй - состояние её выполнения
+  const [deleteUser, {isLoading: isLoadingUserDelete}] = useDeleteUserMutation()
 
-    const isDeletePending = useAppSelector(
-      (state: RootState) => state.users.deleteUserStatus === "pending"
-    );
+  // const handleDelete = () => {
+  //   // обработали результат dispatch как промис
+  //   dispatch(deleteUser({ userId: +id! }));
+  // };
 
-  const handleDelete = () => {
-    // обработали результат dispatch как промис
-    dispatch(deleteUser({ userId: +id! }));
+    const handleDelete = async () => {
+      if (!id) return
+      await deleteUser(+id)
+      navigate("/users");
   };
 
-  if (isUserPending) return <p>Loading...</p>;
+  if (isLoading) return <p>Loading...</p>;
 
   return (
     <div>
@@ -41,7 +40,9 @@ export const UserPage = () => {
 
       <p>{user?.description}</p>
 
-      <button disabled={isDeletePending} onClick={handleDelete}>delete user</button>
+      <button disabled={isLoadingUserDelete} onClick={handleDelete}>
+        delete user
+      </button>
     </div>
   );
 };

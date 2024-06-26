@@ -1,15 +1,14 @@
 {
   "users": [
-   {
-    "id": 1,
-    "name": "Andrew",
-    "description": "First kermit."
-   },
-   {
-    "id": 2,
-    "name": "Yana",
-    "description": "Second kermit."
-   }
+    {
+      "id": 1,
+      "name": "Andrew",
+      "description": "First kermit."
+    },
+    {
+      "id": 2,
+      "name": "Yana",
+      "description": "Second kermit."
+    }
   ]
- }
- 
+}

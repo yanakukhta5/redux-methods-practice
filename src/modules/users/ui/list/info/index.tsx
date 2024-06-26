@@ -16,25 +16,32 @@
 
 import { useNavigate } from "react-router-dom";
 
-import { useAppSelector, useAppDispatch } from "../../../../../shared/redux";
+import { useAppDispatch } from "../../../../../shared/redux";
 
 import { usersSlice } from "../../../slice";
 
-export const Info = ({id}: {id: number}) => {
- const user = useAppSelector((state) => usersSlice.selectors.user(state, id))
+export const Info = ({
+  id,
+  name,
+  description,
+}: {
+  id: number;
+  description: string;
+  name: string;
+}) => {
 
- const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
- const navigate = useNavigate()
-
- if (!user) return
+  const navigate = useNavigate();
 
   return (
-    <p onClick={() => {
-     dispatch(usersSlice.actions.setSelectedId({id}))
-     navigate(`/user/${id}`)
-    }}>
-      id: {user.id}, name: {user.name}, description: {user.description}
+    <p
+      onClick={() => {
+        dispatch(usersSlice.actions.setSelectedId({ id }));
+        navigate(`/user/${id}`);
+      }}
+    >
+      id: {id}, name: {name}, description: {description}
     </p>
   );
 };

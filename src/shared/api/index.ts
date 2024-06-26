@@ -1,30 +1,34 @@
-// import { z } from "zod";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 
-import { User } from "../../modules/users/slice";
+// получение данных (query) - запрос
+// изменение данных (mutation) - мутация (POST, DELETE...)
 
-const baseUrl = "http://localhost:3000";
+export const baseApi = createApi({
+  // baseQuery делает тоже что и инстанс axios или wretch, то есть получает хедеры, базовый url (и т.д.) 
+  // то есть то, на основании чего будут делаться все запросы
+  baseQuery: fetchBaseQuery({
+    baseUrl: "http://localhost:3000"
+  }),
+  // теги нужны для помечания запросов и их инвалидации после выполнения мутаций
+  tagTypes: ['Users'], 
+  // endpoints это определение общих запросов, мутаций и т.д.
+  endpoints: () => ({})
+})
 
-// dto - на сленге описание "транспортного" (не полноценный объект из бизнес логики) объекта, т.е. "который приходит с сервера"
-// const UserDtoSchema = z.object({
-//   id: z.number(),
-//   name: z.string(),
-//   description: z.string(),
-// });
+// export const api = {
+//   getUsers: (): Promise<User[]> => {
+//     return fetch(`${baseUrl}/users`).then((response) => response.json());
+//     // .then((data) => UserDtoSchema.array().parse(data));
+//   },
 
-export const api = {
-  getUsers: (): Promise<User[]> => {
-    return fetch(`${baseUrl}/users`).then((response) => response.json());
-    // .then((data) => UserDtoSchema.array().parse(data));
-  },
+//   getUser: (id: number) => {
+//     return fetch(`${baseUrl}/users/${id}`).then((response) => response.json());
+//     //  .then((data) => UserDtoSchema.parse(data));
+//   },
 
-  getUser: (id: number) => {
-    return fetch(`${baseUrl}/users/${id}`).then((response) => response.json());
-    //  .then((data) => UserDtoSchema.parse(data));
-  },
-
-  deleteUser: (id: number) => {
-    return fetch(`${baseUrl}/users/${id}`, {
-      method: 'DELETE'
-    }).then((response) => response.json());
-  },
-};
+//   deleteUser: (id: number) => {
+//     return fetch(`${baseUrl}/users/${id}`, {
+//       method: 'DELETE'
+//     }).then((response) => response.json());
+//   },
+// };
